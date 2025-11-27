@@ -1,0 +1,139 @@
+syntax = "proto3";
+
+package rating.v1;
+
+option go_package = "github.com/NumberMuncherGeorge/sandbox--go-grpc-microservice/api/gen/go/rating/v1;ratingv1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+// Resource represents an entity that can be rated
+message Resource {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  repeated string categories = 4;  // Categories that can be rated for this resource
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+// Rating represents a rating submission for a resource
+message Rating {
+  string id = 1;
+  string resource_id = 2;
+  string category = 3;  // The category being rated
+  int32 score = 4;      // Rating score (1-5)
+  string comment = 5;   // Optional comment
+  string rater_id = 6;  // ID of the person who submitted the rating
+  google.protobuf.Timestamp created_at = 7;
+}
+
+// CategoryRatingSummary provides aggregated rating info for a category
+message CategoryRatingSummary {
+  string category = 1;
+  double average_score = 2;
+  int32 total_ratings = 3;
+}
+
+// CreateResourceRequest is the request to create a new resource
+message CreateResourceRequest {
+  string name = 1;
+  string description = 2;
+  repeated string categories = 3;
+}
+
+// CreateResourceResponse is the response after creating a resource
+message CreateResourceResponse {
+  Resource resource = 1;
+}
+
+// GetResourceRequest is the request to get a resource by ID
+message GetResourceRequest {
+  string id = 1;
+}
+
+// GetResourceResponse is the response containing the requested resource
+message GetResourceResponse {
+  Resource resource = 1;
+}
+
+// ListResourcesRequest is the request to list all resources
+message ListResourcesRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+// ListResourcesResponse is the response containing a list of resources
+message ListResourcesResponse {
+  repeated Resource resources = 1;
+  string next_page_token = 2;
+}
+
+// SubmitRatingRequest is the request to submit a rating for a resource
+message SubmitRatingRequest {
+  string resource_id = 1;
+  string category = 2;
+  int32 score = 3;
+  string comment = 4;
+  string rater_id = 5;
+}
+
+// SubmitRatingResponse is the response after submitting a rating
+message SubmitRatingResponse {
+  Rating rating = 1;
+}
+
+// GetResourceRatingsRequest is the request to get all ratings for a resource
+message GetResourceRatingsRequest {
+  string resource_id = 1;
+  string category = 2;  // Optional: filter by category
+  int32 page_size = 3;
+  string page_token = 4;
+}
+
+// GetResourceRatingsResponse is the response containing ratings for a resource
+message GetResourceRatingsResponse {
+  repeated Rating ratings = 1;
+  repeated CategoryRatingSummary summaries = 2;
+  string next_page_token = 3;
+}
+
+// RatingService provides operations for managing resources and their ratings
+service RatingService {
+  // CreateResource creates a new resource that can be rated
+  rpc CreateResource(CreateResourceRequest) returns (CreateResourceResponse) {
+    option (google.api.http) = {
+      post: "/v1/resources"
+      body: "*"
+    };
+  }
+
+  // GetResource retrieves a resource by its ID
+  rpc GetResource(GetResourceRequest) returns (GetResourceResponse) {
+    option (google.api.http) = {
+      get: "/v1/resources/{id}"
+    };
+  }
+
+  // ListResources lists all available resources
+  rpc ListResources(ListResourcesRequest) returns (ListResourcesResponse) {
+    option (google.api.http) = {
+      get: "/v1/resources"
+    };
+  }
+
+  // SubmitRating submits a rating for a resource in a specific category
+  rpc SubmitRating(SubmitRatingRequest) returns (SubmitRatingResponse) {
+    option (google.api.http) = {
+      post: "/v1/resources/{resource_id}/ratings"
+      body: "*"
+    };
+  }
+
+  // GetResourceRatings retrieves all ratings for a resource
+  rpc GetResourceRatings(GetResourceRatingsRequest) returns (GetResourceRatingsResponse) {
+    option (google.api.http) = {
+      get: "/v1/resources/{resource_id}/ratings"
+    };
+  }
+}
