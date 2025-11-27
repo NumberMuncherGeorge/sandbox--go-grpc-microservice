@@ -73,9 +73,9 @@ func (r *ResourceRepository) List(ctx context.Context, pageSize int32, pageToken
 
 	var nextPageToken string
 	if len(resources) > int(pageSize) {
-		// There are more results
-		nextPageToken = resources[pageSize-1].ID
+		// There are more results, use the last item's ID from the current page as the token
 		resources = resources[:pageSize]
+		nextPageToken = resources[pageSize-1].ID
 	}
 
 	return resources, nextPageToken, nil
@@ -133,8 +133,9 @@ func (r *RatingRepository) GetByResourceID(ctx context.Context, resourceID strin
 
 	var nextPageToken string
 	if len(ratings) > int(pageSize) {
-		nextPageToken = ratings[pageSize-1].ID
+		// There are more results, use the last item's ID from the current page as the token
 		ratings = ratings[:pageSize]
+		nextPageToken = ratings[pageSize-1].ID
 	}
 
 	return ratings, nextPageToken, nil
