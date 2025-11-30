@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+package category.v1;
+
+option go_package = "github.com/NumberMuncherGeorge/sandbox--go-grpc-microservice/internal/pb/category/v1;categoryv1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+// RatingCategory defines a dimension for rating airplanes
+message RatingCategory {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  RatingScale scale = 4;
+  float weight = 5; // Weight for calculating overall rating (0.0 to 1.0)
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+// RatingScale defines the min/max values for a rating category
+message RatingScale {
+  int32 min_value = 1;
+  int32 max_value = 2;
+}
+
+// CreateCategoryRequest creates a new rating category
+message CreateCategoryRequest {
+  string name = 1;
+  string description = 2;
+  RatingScale scale = 3;
+  float weight = 4;
+}
+
+message CreateCategoryResponse {
+  RatingCategory category = 1;
+}
+
+// GetCategoryRequest retrieves a category by ID
+message GetCategoryRequest {
+  string id = 1;
+}
+
+message GetCategoryResponse {
+  RatingCategory category = 1;
+}
+
+// ListCategoriesRequest lists all categories with pagination
+message ListCategoriesRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListCategoriesResponse {
+  repeated RatingCategory category = 1;
+  string next_page_token = 2;
+}
+
+// UpdateCategoryRequest updates an existing category
+message UpdateCategoryRequest {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  RatingScale scale = 4;
+  float weight = 5;
+}
+
+message UpdateCategoryResponse {
+  RatingCategory category = 1;
+}
+
+// DeleteCategoryRequest deletes a category
+message DeleteCategoryRequest {
+  string id = 1;
+}
+
+message DeleteCategoryResponse {
+  bool success = 1;
+}
+
+// CategoryService manages rating categories
+service CategoryService {
+  rpc CreateCategory(CreateCategoryRequest) returns (CreateCategoryResponse) {
+    option (google.api.http) = {
+      post: "/v1/category"
+      body: "*"
+    };
+  }
+
+  rpc GetCategory(GetCategoryRequest) returns (GetCategoryResponse) {
+    option (google.api.http) = {
+      get: "/v1/category/{id}"
+    };
+  }
+
+  rpc ListCategories(ListCategoriesRequest) returns (ListCategoriesResponse) {
+    option (google.api.http) = {
+      get: "/v1/category"
+    };
+  }
+
+  rpc UpdateCategory(UpdateCategoryRequest) returns (UpdateCategoryResponse) {
+    option (google.api.http) = {
+      put: "/v1/category/{id}"
+      body: "*"
+    };
+  }
+
+  rpc DeleteCategory(DeleteCategoryRequest) returns (DeleteCategoryResponse) {
+    option (google.api.http) = {
+      delete: "/v1/category/{id}"
+    };
+  }
+}

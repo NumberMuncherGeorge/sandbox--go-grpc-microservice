@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+package airplane.v1;
+
+option go_package = "github.com/NumberMuncherGeorge/sandbox--go-grpc-microservice/internal/pb/airplane/v1;airplanev1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+// AirplaneEntity represents a paper airplane design
+message AirplaneEntity {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string picture_url = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+// CreateAirplaneRequest creates a new airplane entity
+message CreateAirplaneRequest {
+  string name = 1;
+  string description = 2;
+  string picture_url = 3;
+}
+
+message CreateAirplaneResponse {
+  AirplaneEntity airplane = 1;
+}
+
+// GetAirplaneRequest retrieves an airplane by ID
+message GetAirplaneRequest {
+  string id = 1;
+}
+
+message GetAirplaneResponse {
+  AirplaneEntity airplane = 1;
+}
+
+// ListAirplanesRequest lists all airplanes with pagination
+message ListAirplanesRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message ListAirplanesResponse {
+  repeated AirplaneEntity airplanes = 1;
+  string next_page_token = 2;
+}
+
+// UpdateAirplaneRequest updates an existing airplane
+message UpdateAirplaneRequest {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string picture_url = 4;
+}
+
+message UpdateAirplaneResponse {
+  AirplaneEntity airplane = 1;
+}
+
+// DeleteAirplaneRequest deletes an airplane
+message DeleteAirplaneRequest {
+  string id = 1;
+}
+
+message DeleteAirplaneResponse {
+  // Empty response for successful deletion
+}
+
+service AirplaneService {
+  rpc CreateAirplane(CreateAirplaneRequest) returns (CreateAirplaneResponse) {
+    option (google.api.http) = {
+      post: "/v1/airplanes"
+      body: "*"
+    };
+  }
+
+  rpc GetAirplane(GetAirplaneRequest) returns (GetAirplaneResponse) {
+    option (google.api.http) = {
+      get: "/v1/airplanes/{id}"
+    };
+  }
+
+  rpc ListAirplanes(ListAirplanesRequest) returns (ListAirplanesResponse) {
+    option (google.api.http) = {
+      get: "/v1/airplanes"
+    };
+  }
+
+  rpc UpdateAirplane(UpdateAirplaneRequest) returns (UpdateAirplaneResponse) {
+    option (google.api.http) = {
+      put: "/v1/airplanes/{id}"
+      body: "*"
+    };
+  }
+
+  rpc DeleteAirplane(DeleteAirplaneRequest) returns (DeleteAirplaneResponse) {
+    option (google.api.http) = {
+      delete: "/v1/airplanes/{id}"
+    };
+  }
+}

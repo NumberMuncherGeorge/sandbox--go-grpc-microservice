@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+package rating.v1;
+
+option go_package = "github.com/NumberMuncherGeorge/sandbox--go-grpc-microservice/internal/pb/rating/v1;ratingv1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+// Rating represents a rating submission for an airplane
+message Rating {
+  string id = 1;
+  string airplane_id = 2;
+  string user_id = 3;
+  repeated CategoryRating category_ratings = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+// CategoryRating represents a rating for a specific category
+message CategoryRating {
+  string category_id = 1;
+  int32 value = 2;
+}
+
+// SubmitRatingRequest submits a new rating for an airplane
+message SubmitRatingRequest {
+  string airplane_id = 1;
+  string user_id = 2;
+  repeated CategoryRating category_ratings = 3;
+}
+
+message SubmitRatingResponse {
+  Rating rating = 1;
+}
+
+// GetRatingRequest retrieves a specific rating
+message GetRatingRequest {
+  string id = 1;
+}
+
+message GetRatingResponse {
+  Rating rating = 1;
+}
+
+// GetRatingsForAirplaneRequest lists all ratings for an airplane
+message GetRatingsForAirplaneRequest {
+  string airplane_id = 1;
+  int32 page_size = 2;
+  string page_token = 3;
+}
+
+message GetRatingsForAirplaneResponse {
+  repeated Rating ratings = 1;
+  string next_page_token = 2;
+}
+
+// GetRatingsSummaryRequest gets summary statistics for an airplane
+message GetRatingsSummaryRequest {
+  string airplane_id = 1;
+}
+
+message GetRatingsSummaryResponse {
+  string airplane_id = 1;
+  int32 total_ratings = 2;
+  repeated CategorySummary category_summaries = 3;
+  float overall_weighted_rating = 4; // Weighted average across all categories
+}
+
+// CategorySummary contains statistics for a rating category
+message CategorySummary {
+  string category_id = 1;
+  float average_rating = 2;
+  int32 min_rating = 3;
+  int32 max_rating = 4;
+  int32 count = 5;
+}
+
+// RatingService manages ratings for airplanes
+service RatingService {
+  rpc SubmitRating(SubmitRatingRequest) returns (SubmitRatingResponse) {
+    option (google.api.http) = {
+      post: "/v1/ratings"
+      body: "*"
+    };
+  }
+
+  rpc GetRating(GetRatingRequest) returns (GetRatingResponse) {
+    option (google.api.http) = {
+      get: "/v1/ratings/{id}"
+    };
+  }
+
+  rpc GetRatingsForAirplane(GetRatingsForAirplaneRequest) returns (GetRatingsForAirplaneResponse) {
+    option (google.api.http) = {
+      get: "/v1/airplanes/{airplane_id}/ratings"
+    };
+  }
+
+  rpc GetRatingsSummary(GetRatingsSummaryRequest) returns (GetRatingsSummaryResponse) {
+    option (google.api.http) = {
+      get: "/v1/airplanes/{airplane_id}/ratings/summary"
+    };
+  }
+}
